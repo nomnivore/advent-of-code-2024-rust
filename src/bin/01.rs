@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use nom::{
     branch::alt,
     character::complete::{digit1, line_ending, space1},
@@ -41,7 +43,20 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let (_, (left, right)) = into_vecs(input).unwrap();
+
+    let map = right
+        .into_iter()
+        .fold(HashMap::new(), |mut acc: HashMap<u32, u32>, n| {
+            *acc.entry(n).or_insert(0) += 1;
+            acc
+        });
+
+    // determine similarity score
+    let score = left
+        .into_iter()
+        .fold(0u32, |acc, n| acc + map.get(&n).unwrap_or(&0u32) * n);
+    Some(score)
 }
 
 #[cfg(test)]
@@ -57,6 +72,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(31u32));
     }
 }
