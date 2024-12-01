@@ -20,15 +20,8 @@
       in
       {
         devShell = pkgs.mkShell {
-          buildInputs = with pkgs; [
-
-          ];
-
-          nativeBuildInputs = with pkgs; [
-            pkg-config
-            openssl
-          ];
-          LD_LIBRARY_PATH = with pkgs; lib.makeLibraryPath [ openssl ];
+          buildInputs = with pkgs; [ aoc-cli ];
+          #
         };
       }
     );
