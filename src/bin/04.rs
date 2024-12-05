@@ -141,7 +141,57 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let (_, haystack) = word_search(input).unwrap();
+
+    let mut found: u32 = 0;
+
+    let width = haystack[0].len();
+
+    // skip first and last row
+    for row in 1..haystack.len() - 1 {
+        // skip first and last column
+        'cols: for col in 1..width - 1 {
+            let ch = haystack.get(row).and_then(|r| r.get(col)).unwrap();
+
+            // start search if its an 'A'
+            if ch == &'A' {
+                // get surrounding corners
+                let up_left_dir = adjusted_indexes((row, col), (-1, -1)).unwrap();
+                let up_right_dir = adjusted_indexes((row, col), (-1, 1)).unwrap();
+                let down_left_dir = adjusted_indexes((row, col), (1, -1)).unwrap();
+                let down_right_dir = adjusted_indexes((row, col), (1, 1)).unwrap();
+
+                let up_left = haystack
+                    .get(up_left_dir.0)
+                    .and_then(|r| r.get(up_left_dir.1))
+                    .unwrap_or(&'.');
+                let up_right = haystack
+                    .get(up_right_dir.0)
+                    .and_then(|r| r.get(up_right_dir.1))
+                    .unwrap_or(&'.');
+                let down_left = haystack
+                    .get(down_left_dir.0)
+                    .and_then(|r| r.get(down_left_dir.1))
+                    .unwrap_or(&'.');
+                let down_right = haystack
+                    .get(down_right_dir.0)
+                    .and_then(|r| r.get(down_right_dir.1))
+                    .unwrap_or(&'.');
+
+                for ele in [up_left, up_right, down_left, down_right] {
+                    if ele != &'M' && ele != &'S' {
+                        continue 'cols;
+                    }
+                }
+                // all are either 'M' or 'S', just make sure they spell 'MAS' diagonally twice
+
+                if up_left != down_right && up_right != down_left {
+                    found += 1;
+                }
+            }
+        }
+    }
+    Some(found)
 }
 
 #[cfg(test)]
@@ -157,6 +207,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(9));
     }
 }
